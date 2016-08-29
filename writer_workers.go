@@ -15,11 +15,12 @@ type writerWorker struct {
 }
 
 func (w *writerWorker) Push(f func()) {
+	w.wg.Add(1)
 	select {
 	case w.callbacks <- f:
-		w.wg.Add(1)
 	default:
 		//throw message if full
+		w.wg.Done()
 	}
 }
 
