@@ -8,18 +8,16 @@ import (
 )
 
 type writerWorker struct {
-	ch      chan func()
-	closing chan bool
-	closed  *abool.AtomicBool
+	callbacks chan func()
+	wg        sync.WaitGroup
+	closing   chan bool
+	closed    chan bool
 }
 
 func (w *writerWorker) Push(f func()) {
-	if w.closed.IsSet() {
-		return
-	}
-
 	select {
-	case w.ch <- f:
+	case w.callbacks <- f:
+		w.wg.Add(1)
 	default:
 		//throw message if full
 	}
@@ -27,17 +25,19 @@ func (w *writerWorker) Push(f func()) {
 
 func (w *writerWorker) Start() {
 	go func() {
-		for ff := range w.ch {
-			ff()
+		for fn := range w.callbacks {
+			fn()
+			w.wg.Done()
 		}
-		w.closing <- true
+		close(w.closed)
 	}()
 }
 
 func (w *writerWorker) WaitClose() {
-	w.closed.Set()
-	close(w.ch)
-	<-w.closing
+	close(w.closing)
+	w.wg.Wait()
+	close(w.callbacks) // Notify the worker to exit
+	<-w.closed
 }
 
 type writerSupervisor struct {
@@ -72,9 +72,9 @@ func (ws *writerSupervisor) Do(w io.Writer, f func()) {
 
 	if !ok {
 		worker = &writerWorker{
-			ch:      make(chan func(), ws.bufferSize),
-			closing: make(chan bool),
-			closed:  abool.New(),
+			callbacks: make(chan func(), ws.bufferSize),
+			closing:   make(chan bool),
+			closed:    make(chan bool),
 		}
 
 		ws.mu.Lock()
