@@ -51,7 +51,7 @@ func (f *BaseFormatter) AddTags(tags ...string) {
 	f.tagReplacer = strings.NewReplacer(f.tags...)
 }
 
-var rTagLong = regexp.MustCompile("{{ *([a-zA-Z]+) *}}")
+var rTagLong = regexp.MustCompile("{{ *([a-zA-Z_]+) *}}")
 var tagShort = []byte("{{$1}}")
 var defaultTags = []string{
 	"{{}}", "{{.String}}",
