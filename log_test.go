@@ -99,6 +99,8 @@ func TestAsyncFATA(t *testing.T) {
 		l: &sync.Mutex{},
 	}
 
+	SetBufferSize(3000)
+
 	l := newLogger(t, w, "{{}}")
 	l.SetAsync(true)
 	realLogger := l.(*Logger)
@@ -111,10 +113,13 @@ func TestAsyncFATA(t *testing.T) {
 	for i := 0; i < max; i++ {
 		realLogger.Info("Test_Async")
 	}
+	<-time.After(time.Millisecond * 100)
 	realLogger.Output(fataRecord)
+	<-time.After(time.Millisecond * 100)
 	for i := 0; i < 20; i++ {
 		realLogger.Info("Test_Async")
 	}
+	<-time.After(time.Millisecond * 100)
 
 	if len(w.lines) != max+1 {
 		t.Errorf("Writed log lines not Match, whant=%d got=%d", max+1, len(w.lines))
