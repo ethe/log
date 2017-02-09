@@ -80,13 +80,18 @@ func New(name string) SimpleLogger {
 
 // NewWithWriter creates a Logger with given Writer as the only output
 func NewWithWriter(name string, w io.Writer) *Logger {
+	return NewWithFormat(name, w, TplDefault)
+}
+
+// NewWithFormat creates a Logger with given Writer and format
+func NewWithFormat(name string, w io.Writer, format string) *Logger {
 	l := new(Logger)
 	l.name = name
 	l.lv = NOTSET
 	l.handlers = make(map[Handler]bool)
 	if w != nil {
 		f := NewBaseFormatter(IsTerminal(w))
-		err := f.ParseFormat(TplDefault)
+		err := f.ParseFormat(format)
 		if err != nil {
 			panic(err)
 		}
