@@ -356,3 +356,8 @@ func (l *Logger) Fatalf(f string, a ...interface{}) {
 	l.Output(l.recordFactory(l.Name(), 2, FATA, fmt.Sprintf(f, a...)))
 	os.Exit(1)
 }
+
+// RecordFactory return the record factory
+func (l *Logger) RecordFactory() RecordFactory {
+	return l.recordFactory
+}

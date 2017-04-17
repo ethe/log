@@ -48,6 +48,9 @@ type SimpleLogger interface {
 	Warner
 	Errorer
 	Fataler
+
+	RecordFactory() RecordFactory
+	Output(record Record)
 }
 
 // RPCLogger contains a SimpleLogger with extra RPC APIs
