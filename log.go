@@ -37,11 +37,11 @@ var (
 
 // LevelName maps LevelType to human-readable string
 var LevelName = map[LevelType]string{
-	DEBUG: "DEBUG",
-	INFO:  "INFO",
-	WARN:  "WARN",
-	ERRO:  "ERRO",
-	FATA:  "FATA",
+	DEBUG: "debug",
+	INFO:  "info",
+	WARN:  "warning",
+	ERRO:  "error",
+	FATA:  "fatal",
 }
 
 var levelColor = map[LevelType]color{
