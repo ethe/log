@@ -129,7 +129,7 @@ func TestAsyncFATA(t *testing.T) {
 }
 
 func TestGlobalLevel(t *testing.T) {
-	expected := "W: WarnLog\n"
+	expected := "w: WarnLog\n"
 	var b bytes.Buffer
 	l := newLogger(t, &b, "{{l}}: {{}}")
 	SetGlobalLevel(WARN)
@@ -159,7 +159,7 @@ func TestLevelPriority(t *testing.T) {
 }
 
 func TestLevel(t *testing.T) {
-	expected := "E: ErrorLog\n"
+	expected := "e: ErrorLog\n"
 	var b bytes.Buffer
 	l := newLogger(t, &b, "{{l}}: {{}}")
 	l.SetLevel(ERRO)
@@ -195,9 +195,9 @@ func TestGlobalAppID(t *testing.T) {
 }
 
 func TestTemplate(t *testing.T) {
-	expected := `long: INFO
-short: I
-duplicate: I
+	expected := `long: info
+short: i
+duplicate: i
 content: hi
 `
 	var b bytes.Buffer
@@ -227,8 +227,8 @@ func ExampleLogger() {
 	l.SetLevel(DEBUG)
 	l.Debug("this enables debug")
 	// Output:
-	// INFO thus debug is not printed
-	// DEBUG this enables debug
+	// info thus debug is not printed
+	// debug this enables debug
 }
 
 func ExampleLevel() {
@@ -247,12 +247,12 @@ func ExampleLevel() {
 	l.Info("Info, default log level")
 	l.Warn("Warning, errors are handled, need attention")
 	// l.Fatal("Fatal, will os.Exit(1)")
-	// FATA Fatal, will os.Exit(1)
+	// fatal Fatal, will os.Exit(1)
 
 	// Output:
-	// DEBUG Debug, turned off by default
-	// INFO Info, default log level
-	// WARN Warning, errors are handled, need attention
+	// debug Debug, turned off by default
+	// info Info, default log level
+	// warning Warning, errors are handled, need attention
 }
 
 // Benchmarks
