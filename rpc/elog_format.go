@@ -1,37 +1,59 @@
 package rpc
 
 import (
-	"text/template"
+	"fmt"
 
 	"github.com/eleme/log"
 )
 
-var elogTags = []string{
-	"{{rpc_id}}", "{{rpc_id .}}",
-	"{{request_id}}", "{{request_id .}}",
-}
+const (
+	NexLog = iota
+	NexSyslog
+)
 
 // ELogForamtter is the formatter for elog.
 type ELogForamtter struct {
 	*log.BaseFormatter
+	logType int
 }
 
 // NewELogFormatter create a ELogFormatter with colored.
-func NewELogFormatter(colored bool) *ELogForamtter {
+func NewELogFormatter(logType int, colored bool) *ELogForamtter {
 	ef := new(ELogForamtter)
 	ef.BaseFormatter = log.NewBaseFormatter(colored)
 	ef.SetColored(colored)
-	ef.AddTags(elogTags...)
-	ef.AddFuncMap(template.FuncMap{
-		"rpc_id":     ef._rpcID,
-		"request_id": ef._requestID,
-	})
+	ef.logType = logType
 	return ef
 }
 
 // Format formats a Record with set format
 func (f *ELogForamtter) Format(record log.Record) []byte {
-	return f.BaseFormatter.Format(record)
+	var result string
+
+	switch f.logType {
+	case NexLog:
+		result = fmt.Sprintf(
+			"%v %v %v[%v]: [%v %v %v] ## %v",
+			f.Datetime(record),
+			f.Level(record),
+			f.Name(record),
+			f.Pid(record),
+			f.AppID(record),
+			f._rpcID(record.(*ELogRecord)),
+			f._requestID(record.(*ELogRecord)),
+			record.String(),
+		)
+	case NexSyslog:
+		result = fmt.Sprintf(
+			"[%v %v %v] ## %v",
+			f.AppID(record),
+			f._rpcID(record.(*ELogRecord)),
+			f._requestID(record.(*ELogRecord)),
+			record.String(),
+		)
+	default:
+	}
+	return []byte(result)
 }
 
 func (f *ELogForamtter) _rpcID(r *ELogRecord) string {

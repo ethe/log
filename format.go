@@ -229,3 +229,23 @@ func (f *BaseFormatter) AddFuncMap(funcMap template.FuncMap) {
 func (f *BaseFormatter) Paint(lv LevelType, s string) string {
 	return painter(levelColor[lv], s)
 }
+
+func (f *BaseFormatter) Datetime(r Record) string {
+	return f._datetime(r)
+}
+
+func (f *BaseFormatter) Level(r Record) string {
+	return f._level(r)
+}
+
+func (f *BaseFormatter) Name(r Record) string {
+	return f._name(r)
+}
+
+func (f *BaseFormatter) Pid(r Record) string {
+	return f._pid(r)
+}
+
+func (f *BaseFormatter) AppID(r Record) string {
+	return f._appID(r)
+}

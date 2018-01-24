@@ -13,6 +13,7 @@ type Record interface {
 	Now() time.Time
 	Name() string
 	Fileline() string
+	String() string
 }
 
 // RecordFactory represents a factory of record.
