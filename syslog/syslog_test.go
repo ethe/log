@@ -2,7 +2,6 @@ package syslog
 
 import (
 	"bytes"
-	"fmt"
 	"strings"
 	"testing"
 
@@ -32,7 +31,6 @@ func TestSyslogtpl(t *testing.T) {
 	l.Info("TEST_TEST")
 
 	strs := strings.Split(buf.String(), " ")
-	fmt.Println(strs[4])
 
 	if strs[0] != "[samaritan.test" || strs[4] != "TEST_TEST\n" ||
 		strs[1] != "-" || strs[2] != "-]" {
