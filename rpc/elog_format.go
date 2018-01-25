@@ -11,15 +11,15 @@ const (
 	NexSyslog
 )
 
-// ELogForamtter is the formatter for elog.
-type ELogForamtter struct {
+// ELogFormatter is the formatter for elog.
+type ELogFormatter struct {
 	*log.BaseFormatter
 	logType int
 }
 
 // NewELogFormatter create a ELogFormatter with colored.
-func NewELogFormatter(logType int, colored bool) *ELogForamtter {
-	ef := new(ELogForamtter)
+func NewELogFormatter(logType int, colored bool) *ELogFormatter {
+	ef := new(ELogFormatter)
 	ef.BaseFormatter = log.NewBaseFormatter(colored)
 	ef.SetColored(colored)
 	ef.logType = logType
@@ -27,7 +27,7 @@ func NewELogFormatter(logType int, colored bool) *ELogForamtter {
 }
 
 // Format formats a Record with set format
-func (f *ELogForamtter) Format(record log.Record) []byte {
+func (f *ELogFormatter) Format(record log.Record) []byte {
 	var result string
 
 	switch f.logType {
@@ -56,7 +56,7 @@ func (f *ELogForamtter) Format(record log.Record) []byte {
 	return []byte(result)
 }
 
-func (f *ELogForamtter) _rpcID(r *ELogRecord) string {
+func (f *ELogFormatter) _rpcID(r *ELogRecord) string {
 	s := r.rpcID
 	if s == "" {
 		s = "-"
@@ -67,7 +67,7 @@ func (f *ELogForamtter) _rpcID(r *ELogRecord) string {
 	return s
 }
 
-func (f *ELogForamtter) _requestID(r *ELogRecord) string {
+func (f *ELogFormatter) _requestID(r *ELogRecord) string {
 	s := r.requestID
 	if s == "" {
 		s = "-"

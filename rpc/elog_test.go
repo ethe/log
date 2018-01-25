@@ -1,94 +1,31 @@
 package rpc
 
 import (
-	"bytes"
-	"fmt"
-	"io"
-	"strings"
-	"sync"
+	"regexp"
 	"testing"
 
 	"github.com/eleme/log"
 )
 
-func newELogger(t *testing.T, w io.Writer, f string) log.RPCLogger {
-	l := log.NewWithWriter("elog", nil)
-	elog := &ELogger{Logger: l}
-	elog.recordFactory = NewELogRecordFactory(elog.rpcID, elog.requestID)
+const (
+	NexLogPattern    = `(\d{4}-\d{2}-\d{2} \d{1,}:\d{1,}:\d{1,}.\d{0,}) info (\S+)\[(\S+)\]: \[(\S+) (.*)\] (.*)## (.+)$`
+	NexSyslogPattern = `\[(\S+) (.*)\] (.*)## (.+)$`
+)
 
-	ef := NewELogFormatter(false)
-	if err := ef.ParseFormat(f); err != nil {
-		t.Error("error creating stream handler: ", err)
-		t.FailNow()
-	}
-	h := log.NewStreamHandler(w, ef)
-	h.Colored(false)
-	elog.AddHandler(h)
-	return elog
-}
+func TestELogFormatter(t *testing.T) {
+	nexLogRegex, _ := regexp.Compile(NexLogPattern)
+	nexSyslogRegex, _ := regexp.Compile(NexSyslogPattern)
+	record := NewELogRecord("test", 1, log.INFO, "test", "111", "111")
 
-func TestSetRPCID(t *testing.T) {
-	var buf bytes.Buffer
-	elog := newELogger(t, &buf, "[{{rpc_id}}] ## {{}}")
-
-	expectedNil := "[-] ## InfoLog\n"
-	elog.Info("InfoLog")
-	if buf.String() != expectedNil {
-		t.Errorf("Expected:\n%s\nGot:\n%s", expectedNil, buf.String())
+	formatter := NewELogFormatter(NexLog, false)
+	nexLog := formatter.Format(record)
+	if !nexLogRegex.Match(nexLog) {
+		t.Error("Nex log pattern failed.")
 	}
 
-	buf.Reset()
-	expected := "[test.rpcid] ## InfoLog\n"
-	elog.WithRPCID("test.rpcid").Info("InfoLog")
-	if buf.String() != expected {
-		t.Errorf("Expected:\n%s\nGot:\n%s", expected, buf.String())
-	}
-}
-
-func TestSetRequestID(t *testing.T) {
-	var buf bytes.Buffer
-	elog := newELogger(t, &buf, "[{{request_id}}] ## {{}}")
-
-	expectedNil := "[-] ## InfoLog\n"
-	elog.Info("InfoLog")
-	if buf.String() != expectedNil {
-		t.Errorf("Expected:\n%s\nGot:\n%s", expectedNil, buf.String())
-	}
-
-	buf.Reset()
-	expected := "[test.request_id] ## InfoLog\n"
-	elog.WithRequestID("test.request_id").Info("InfoLog")
-	if buf.String() != expected {
-		t.Errorf("Expected:\n%s\nGot:\n%s", expected, buf.String())
-	}
-}
-
-func TestMultiRPCLog(t *testing.T) {
-	var buf bytes.Buffer
-	elog := newELogger(t, &buf, "{{rpc_id}} {{}}")
-
-	var wg sync.WaitGroup
-	for i := 0; i < 1000; i++ {
-		wg.Add(1)
-		go func(flag int) {
-			defer wg.Done()
-			elog.WithRPCID(fmt.Sprintf("%d", flag)).Info(fmt.Sprintf("%d", flag))
-		}(i)
-	}
-	wg.Wait()
-
-	for {
-		line, err := buf.ReadString('\n')
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			t.Error(err)
-			break
-		}
-		strs := strings.Split(line, " ")
-		if strs[0] != strings.TrimSpace(strs[1]) {
-			t.Errorf("rpcID: %#v, info: %#v", strs[0], strings.TrimSpace(strs[1]))
-		}
+	formatter = NewELogFormatter(NexSyslog, false)
+	nexSyslog := formatter.Format(record)
+	if !nexSyslogRegex.Match(nexSyslog) {
+		t.Error("Nex syslog pattern failed.")
 	}
 }
