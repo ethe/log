@@ -7,7 +7,9 @@ import (
 )
 
 const (
+	// NexLog select elog type to nex log
 	NexLog = iota
+	// NexSyslog select elog type to nex syslog
 	NexSyslog
 )
 
@@ -33,7 +35,7 @@ func (f *ELogFormatter) Format(record log.Record) []byte {
 	switch f.logType {
 	case NexLog:
 		result = fmt.Sprintf(
-			"%v %v %v[%v]: [%v %v %v] ## %v",
+			"%v %v %v[%v]: [%v %v %v] ## %v\n",
 			f.Datetime(record),
 			f.Level(record),
 			f.Name(record),
@@ -45,7 +47,7 @@ func (f *ELogFormatter) Format(record log.Record) []byte {
 		)
 	case NexSyslog:
 		result = fmt.Sprintf(
-			"[%v %v %v] ## %v",
+			"[%v %v %v] ## %v\n",
 			f.AppID(record),
 			f._rpcID(record.(*ELogRecord)),
 			f._requestID(record.(*ELogRecord)),
@@ -76,4 +78,9 @@ func (f *ELogFormatter) _requestID(r *ELogRecord) string {
 		s = f.Paint(r.Level(), s)
 	}
 	return s
+}
+
+// ParseFormat do not need parse any more, patch this method.
+func (f *ELogFormatter) ParseFormat(format string) error {
+	return nil
 }

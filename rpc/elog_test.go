@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	NexLogPattern    = `(\d{4}-\d{2}-\d{2} \d{1,}:\d{1,}:\d{1,}.\d{0,}) info (\S+)\[(\S+)\]: \[(\S+) (.*)\] (.*)## (.+)$`
-	NexSyslogPattern = `\[(\S+) (.*)\] (.*)## (.+)$`
+	NexLogPattern    = `(\d{4}-\d{2}-\d{2} \d{1,}:\d{1,}:\d{1,}.\d{0,}) info (\S+)\[(\S+)\]: \[(\S+) (.*)\] (.*)## (.+)\n$`
+	NexSyslogPattern = `\[(\S+) (.*)\] (.*)## (.+)\n$`
 )
 
 func TestELogFormatter(t *testing.T) {
